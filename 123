@@ -1,100 +1,49 @@
+-- Recebe target_user da variável global ou de um parâmetro
+local targetName = target_user or _G.target_user or "StellaInsane"
+
 local Players = game:GetService("Players")
 local Player = Players.LocalPlayer
 
-print("\n[DEBUG] Iniciando cópia de moveset...")
-print("[DEBUG] Alvo: " .. target_user)
-print("[DEBUG] Você: " .. Player.Name)
-
--- Encontra o alvo
 local targetPlayer = nil
 for _, player in pairs(Players:GetPlayers()) do
-    print("[DEBUG] Verificando: " .. player.Name)
-    if player.Name == target_user then
+    if player.Name == targetName then
         targetPlayer = player
-        print("[DEBUG] ✅ Alvo encontrado!")
         break
     end
 end
 
 if not targetPlayer then
-    print("[ERRO] Alvo não encontrado!")
+    print("[ERRO] " .. targetName .. " não encontrado")
     return
 end
 
-print("[DEBUG] Procurando statz do alvo...")
 local targetStatz = targetPlayer:FindFirstChild("statz")
-
-if not targetStatz then
-    print("[ERRO] statz do alvo não existe!")
-    print("[DEBUG] Filhos do alvo:")
-    for _, child in pairs(targetPlayer:GetChildren()) do
-        print("  - " .. child.Name)
-    end
-    return
-end
-
-print("[DEBUG] ✅ statz do alvo encontrado")
-print("[DEBUG] Procurando movesetsaving do alvo...")
+if not targetStatz then return end
 
 local targetMovesetsaving = targetStatz:FindFirstChild("movesetsaving")
+if not targetMovesetsaving then return end
 
-if not targetMovesetsaving then
-    print("[ERRO] movesetsaving do alvo não existe!")
-    print("[DEBUG] Filhos do statz do alvo:")
-    for _, child in pairs(targetStatz:GetChildren()) do
-        print("  - " .. child.Name)
-    end
-    return
-end
-
-print("[DEBUG] ✅ movesetsaving do alvo encontrado")
-
--- Agora procura no seu statz
-print("\n[DEBUG] Procurando seu statz...")
 local myStatz = Player:FindFirstChild("statz")
-
-if not myStatz then
-    print("[ERRO] Seu statz não existe!")
-    return
-end
-
-print("[DEBUG] ✅ Seu statz encontrado")
+if not myStatz then return end
 
 local myMovesetsaving = myStatz:FindFirstChild("movesetsaving")
-
 if not myMovesetsaving then
-    print("[DEBUG] movesetsaving não existe em você, criando...")
     myMovesetsaving = Instance.new("Folder")
     myMovesetsaving.Name = "movesetsaving"
     myMovesetsaving.Parent = myStatz
-    print("[DEBUG] ✅ movesetsaving criado")
 end
 
-print("\n[DEBUG] Limpando seus saveX antigos...")
 for _, child in pairs(myMovesetsaving:GetChildren()) do
-    print("[DEBUG] Deletando: " .. child.Name)
     child:Destroy()
 end
 
-print("\n[DEBUG] Copiando saveX do alvo...")
 local copiedCount = 0
-
 for _, save in pairs(targetMovesetsaving:GetChildren()) do
-    print("[DEBUG] Encontrado: " .. save.Name .. " (Tipo: " .. save.ClassName .. ")")
-    
     if string.match(save.Name, "save%d") then
-        print("[DEBUG] Copiando: " .. save.Name)
         local clonedSave = save:Clone()
         clonedSave.Parent = myMovesetsaving
         copiedCount = copiedCount + 1
-        print("[DEBUG] ✅ " .. save.Name .. " copiado!")
     end
 end
 
-print("\n[RESULTADO] Total de saveX copiados: " .. copiedCount)
-
-if copiedCount > 0 then
-    print("[✅] SUCESSO! Moveset copiado com sucesso!")
-else
-    print("[❌] ERRO! Nenhum save foi copiado!")
-end
+print("[✅] " .. copiedCount .. " saveX copiados de " .. targetName)
