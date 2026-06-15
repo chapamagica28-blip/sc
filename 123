@@ -1,6 +1,3 @@
--- A variável target_user deve ser definida ANTES de chamar o loadstring
--- Exemplo: local target_user = "IZACff007"
-
 local function main(targetName)
     local Players = game:GetService("Players")
     local Player = Players.LocalPlayer
@@ -85,7 +82,8 @@ local function main(targetName)
     print("\n╔════════════════════════════════════╗")
     print("║  MOVESET STEALER - STELLA HUB      ║")
     print("╚════════════════════════════════════╝\n")
-    print("🎯 Alvo: " .. targetName .. "\n")
+    print("🎯 Copiando de: " .. targetName)
+    print("👤 Para: " .. Player.Name .. "\n")
     
     local function notify(title, text, color)
         color = color or Color3.fromRGB(255, 100, 0)
@@ -126,11 +124,16 @@ local function main(targetName)
         screenGui:Destroy()
     end
     
-    local targetPlayer = nil
-    for _, player in pairs(Players:GetPlayers()) do
-        if player.Name == targetName then
-            targetPlayer = player
-            break
+    -- ⬇️ AQUI ESTÁ A CORREÇÃO - Procura o ALVO, não a si mesmo ⬇️
+    local targetPlayer = Players:FindFirstChild(targetName)
+    
+    if not targetPlayer then
+        -- Se não encontrou, procura em todos
+        for _, player in pairs(Players:GetPlayers()) do
+            if player.Name == targetName then
+                targetPlayer = player
+                break
+            end
         end
     end
     
@@ -144,26 +147,29 @@ local function main(targetName)
         return
     end
     
-    print("✅ Jogador encontrado: " .. targetPlayer.Name)
+    print("✅ Alvo encontrado: " .. targetPlayer.Name)
     
+    -- Obtém statz do ALVO
     local targetStatz = targetPlayer:FindFirstChild("statz")
     if not targetStatz then
-        notify("❌ ERRO", "statz não encontrado!", Color3.fromRGB(255, 50, 50))
-        print("❌ statz não encontrado")
+        notify("❌ ERRO", "statz do alvo não encontrado!", Color3.fromRGB(255, 50, 50))
+        print("❌ statz do alvo não encontrado")
         return
     end
     
-    print("✅ statz encontrado")
+    print("✅ statz do alvo encontrado")
     
+    -- Obtém movesetsaving do ALVO
     local targetMovesetsaving = targetStatz:FindFirstChild("movesetsaving")
     if not targetMovesetsaving then
-        notify("❌ ERRO", "movesetsaving não encontrado!", Color3.fromRGB(255, 50, 50))
-        print("❌ movesetsaving não encontrado")
+        notify("❌ ERRO", "movesetsaving do alvo não encontrado!", Color3.fromRGB(255, 50, 50))
+        print("❌ movesetsaving do alvo não encontrado")
         return
     end
     
-    print("✅ movesetsaving encontrado\n")
+    print("✅ movesetsaving do alvo encontrado\n")
     
+    -- Obtém statz do PLAYER LOCAL (você)
     local myStatz = Player:FindFirstChild("statz")
     if not myStatz then
         notify("❌ ERRO", "Seu statz não existe!", Color3.fromRGB(255, 50, 50))
@@ -173,24 +179,27 @@ local function main(targetName)
     
     print("✅ Seu statz encontrado")
     
+    -- Obtém ou cria movesetsaving PARA VOCÊ
     local myMovesetsaving = myStatz:FindFirstChild("movesetsaving")
     if not myMovesetsaving then
         myMovesetsaving = Instance.new("Folder")
         myMovesetsaving.Name = "movesetsaving"
         myMovesetsaving.Parent = myStatz
-        print("✅ movesetsaving criado\n")
+        print("✅ movesetsaving criado para você\n")
     else
-        print("✅ movesetsaving já existe\n")
+        print("✅ movesetsaving já existe em você\n")
     end
     
-    print("[COPIANDO] Limpando saveX antigos...\n")
+    print("[COPIANDO] Limpando seus saveX antigos...\n")
     
+    -- Limpa seus saveX antigos
     for _, child in pairs(myMovesetsaving:GetChildren()) do
         child:Destroy()
     end
     
-    print("[COPIANDO] Copiando novos saveX...\n")
+    print("[COPIANDO] Copiando saveX do alvo para você...\n")
     
+    -- Copia os saveX DO ALVO PARA VOCÊ
     local copiedCount = 0
     for _, save in pairs(targetMovesetsaving:GetChildren()) do
         if string.match(save.Name, "save%d") then
@@ -220,10 +229,9 @@ local function main(targetName)
     notify("✅ SUCESSO!", "Roubado " .. copiedCount .. " saveX\nDe: " .. targetPlayer.Name, Color3.fromRGB(50, 255, 50))
 end
 
--- Se target_user estiver definido, usar ele
 if target_user then
     main(target_user)
 else
-    print("❌ ERRO: Defina target_user antes de chamar o script!")
+    print("❌ ERRO: Defina target_user antes!")
     print("Exemplo: local target_user = 'IZACff007'")
 end
