@@ -1,4 +1,7 @@
-local function main()
+-- A variável target_user deve ser definida ANTES de chamar o loadstring
+-- Exemplo: local target_user = "IZACff007"
+
+local function main(targetName)
     local Players = game:GetService("Players")
     local Player = Players.LocalPlayer
     
@@ -82,7 +85,7 @@ local function main()
     print("\n╔════════════════════════════════════╗")
     print("║  MOVESET STEALER - STELLA HUB      ║")
     print("╚════════════════════════════════════╝\n")
-    print("🎯 Alvo: " .. target_user .. "\n")
+    print("🎯 Alvo: " .. targetName .. "\n")
     
     local function notify(title, text, color)
         color = color or Color3.fromRGB(255, 100, 0)
@@ -125,15 +128,19 @@ local function main()
     
     local targetPlayer = nil
     for _, player in pairs(Players:GetPlayers()) do
-        if player.Name == target_user then
+        if player.Name == targetName then
             targetPlayer = player
             break
         end
     end
     
     if not targetPlayer then
-        notify("❌ ERRO", "Jogador " .. target_user .. " não encontrado!", Color3.fromRGB(255, 50, 50))
-        print("❌ Jogador não encontrado: " .. target_user)
+        notify("❌ ERRO", "Jogador " .. targetName .. " não encontrado!", Color3.fromRGB(255, 50, 50))
+        print("❌ Jogador não encontrado: " .. targetName)
+        print("\n📋 Jogadores disponíveis:")
+        for _, player in pairs(Players:GetPlayers()) do
+            print("  - " .. player.Name)
+        end
         return
     end
     
@@ -142,6 +149,7 @@ local function main()
     local targetStatz = targetPlayer:FindFirstChild("statz")
     if not targetStatz then
         notify("❌ ERRO", "statz não encontrado!", Color3.fromRGB(255, 50, 50))
+        print("❌ statz não encontrado")
         return
     end
     
@@ -150,6 +158,7 @@ local function main()
     local targetMovesetsaving = targetStatz:FindFirstChild("movesetsaving")
     if not targetMovesetsaving then
         notify("❌ ERRO", "movesetsaving não encontrado!", Color3.fromRGB(255, 50, 50))
+        print("❌ movesetsaving não encontrado")
         return
     end
     
@@ -158,6 +167,7 @@ local function main()
     local myStatz = Player:FindFirstChild("statz")
     if not myStatz then
         notify("❌ ERRO", "Seu statz não existe!", Color3.fromRGB(255, 50, 50))
+        print("❌ Seu statz não existe")
         return
     end
     
@@ -210,4 +220,10 @@ local function main()
     notify("✅ SUCESSO!", "Roubado " .. copiedCount .. " saveX\nDe: " .. targetPlayer.Name, Color3.fromRGB(50, 255, 50))
 end
 
-main()
+-- Se target_user estiver definido, usar ele
+if target_user then
+    main(target_user)
+else
+    print("❌ ERRO: Defina target_user antes de chamar o script!")
+    print("Exemplo: local target_user = 'IZACff007'")
+end
