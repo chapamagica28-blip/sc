@@ -1,0 +1,164 @@
+--[[
+    SHINDO LIFE - MOVESET STEALER (CORRETO)
+    Copia os 5 saveX de outro player para você
+    Cole no Executor Solara
+]]--
+
+local Players = game:GetService("Players")
+local Player = Players.LocalPlayer
+
+print("\n╔════════════════════════════════════╗")
+print("║  MOVESET STEALER CORRETO           ║")
+print("╚════════════════════════════════════╝\n")
+
+-- Encontra o player
+local targetPlayer = nil
+for _, player in pairs(Players:GetPlayers()) do
+    if player.Name == targetNick then
+        targetPlayer = player
+        break
+    end
+end
+
+if not targetPlayer then
+    print("❌ Jogador não encontrado: " .. targetNick)
+    print("\n📋 Jogadores disponíveis:")
+    for _, player in pairs(Players:GetPlayers()) do
+        print("  - " .. player.Name)
+    end
+    return
+end
+
+print("✅ Jogador encontrado: " .. targetPlayer.Name .. "\n")
+
+-- Notificação
+local function notify(title, text, color)
+    color = color or Color3.fromRGB(255, 100, 0)
+    
+    local screenGui = Instance.new("ScreenGui")
+    screenGui.Name = "Notif_" .. math.random(1, 99999)
+    screenGui.ResetOnSpawn = false
+    screenGui.Parent = Player:WaitForChild("PlayerGui")
+    
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(0, 350, 0, 120)
+    frame.Position = UDim2.new(1, -20, 0, 20)
+    frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    frame.BorderColor3 = color
+    frame.BorderSizePixel = 3
+    frame.Parent = screenGui
+    
+    local titleLabel = Instance.new("TextLabel")
+    titleLabel.Text = title
+    titleLabel.TextColor3 = color
+    titleLabel.BackgroundTransparency = 1
+    titleLabel.Size = UDim2.new(1, 0, 0, 45)
+    titleLabel.TextScaled = true
+    titleLabel.Font = Enum.Font.GothamBold
+    titleLabel.Parent = frame
+    
+    local textLabel = Instance.new("TextLabel")
+    textLabel.Text = text
+    textLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+    textLabel.BackgroundTransparency = 1
+    textLabel.Size = UDim2.new(1, 0, 1, -45)
+    textLabel.Position = UDim2.new(0, 0, 0, 45)
+    textLabel.TextScaled = true
+    textLabel.Font = Enum.Font.Gotham
+    textLabel.TextWrapped = true
+    textLabel.Parent = frame
+    
+    task.wait(4)
+    screenGui:Destroy()
+end
+
+-- Obtém statz do alvo
+local targetStatz = targetPlayer:FindFirstChild("statz")
+if not targetStatz then
+    notify("❌ ERRO", "statz não encontrado!", Color3.fromRGB(255, 50, 50))
+    print("❌ statz não encontrado")
+    return
+end
+
+print("✅ statz encontrado")
+
+-- Obtém movesetsaving do alvo
+local targetMovesetsaving = targetStatz:FindFirstChild("movesetsaving")
+if not targetMovesetsaving then
+    notify("❌ ERRO", "movesetsaving não encontrado!", Color3.fromRGB(255, 50, 50))
+    print("❌ movesetsaving não encontrado")
+    return
+end
+
+print("✅ movesetsaving encontrado\n")
+
+-- Obtém statz do jogador local
+local myStatz = Player:FindFirstChild("statz")
+if not myStatz then
+    notify("❌ ERRO", "Seu statz não existe!", Color3.fromRGB(255, 50, 50))
+    print("❌ Seu statz não existe")
+    return
+end
+
+print("✅ Seu statz encontrado")
+
+-- Obtém movesetsaving local
+local myMovesetsaving = myStatz:FindFirstChild("movesetsaving")
+if not myMovesetsaving then
+    myMovesetsaving = Instance.new("Folder")
+    myMovesetsaving.Name = "movesetsaving"
+    myMovesetsaving.Parent = myStatz
+    print("✅ movesetsaving criado\n")
+else
+    print("✅ movesetsaving já existe\n")
+end
+
+print("[COPIANDO] Limpando saveX antigos...\n")
+
+-- Limpa os saveX antigos
+for _, child in pairs(myMovesetsaving:GetChildren()) do
+    child:Destroy()
+end
+
+print("[COPIANDO] Copiando novos saveX...\n")
+
+-- Copia os saveX do alvo
+local copiedCount = 0
+for _, save in pairs(targetMovesetsaving:GetChildren()) do
+    if string.match(save.Name, "save%d") then
+        local clonedSave = save:Clone()
+        clonedSave.Parent = myMovesetsaving
+        copiedCount = copiedCount + 1
+        
+        local abilityCount = #clonedSave:GetChildren()
+        print("[✅] " .. save.Name .. " copiado (" .. abilityCount .. " habilidades)")
+        
+        -- Log das habilidades principais
+        local logCount = 0
+        for _, ability in pairs(clonedSave:GetChildren()) do
+            if logCount < 5 then
+                print("    → " .. ability.Name .. " = " .. tostring(ability.Value))
+                logCount = logCount + 1
+            end
+        end
+        if abilityCount > 5 then
+            print("    ... e mais " .. (abilityCount - 5) .. " habilidades")
+        end
+        print("")
+    end
+end
+
+if copiedCount == 0 then
+    notify("❌ ERRO", "Nenhum save foi copiado!", Color3.fromRGB(255, 50, 50))
+    print("❌ Nenhum save foi copiado")
+    return
+end
+
+print("╔════════════════════════════════════╗")
+print("║ ✅ MOVESET ROUBADO COM SUCESSO!   ║")
+print("╚════════════════════════════════════╝\n")
+print("📊 Total de saveX copiados: " .. copiedCount)
+print("👤 De: " .. targetPlayer.Name)
+print("👤 Para: " .. Player.Name .. "\n")
+
+notify("✅ SUCESSO!", "Roubado " .. copiedCount .. " saveX\nDe: " .. targetPlayer.Name, Color3.fromRGB(50, 255, 50))
